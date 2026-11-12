@@ -51,7 +51,7 @@
       <main id="main">
         <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Нотатки команди</h1>
 
-        <section aria-labelledby="notes-heading" class="mt-6">
+        <section id="notes-root" aria-labelledby="notes-heading" class="mt-6">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <h2 id="notes-heading" class="text-lg font-semibold">Останні нотатки</h2>
             <label class="relative inline-flex min-h-11 cursor-pointer items-center gap-3 text-sm">
@@ -61,55 +61,14 @@
             </label>
           </div>
 
-          <ul role="list" class="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <li>
-              <article aria-labelledby="note-1-title" class="group @container flex h-full flex-col rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md motion-reduce:transition-none dark:border-neutral-800 dark:bg-neutral-900">
-                <h3 id="note-1-title" class="text-base font-semibold">
-                  <a href="/notes/1" class="block truncate rounded-sm text-neutral-900 group-hover:text-brand-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:text-neutral-100 dark:group-hover:text-brand-300">Як ми робимо code review у команді з п'яти людей і не сваримося</a>
-                </h3>
-                <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Олена · <time datetime="2026-11-05">5 листопада 2026</time></p>
-                <p class="mt-2 line-clamp-3 text-sm text-neutral-600 dark:text-neutral-300">Кожен PR дивляться двоє. Перший — на логіку і крайові випадки, другий — на назви, тести й документацію. Коментар починаємо з питання, а не з вимоги. Якщо обговорення триває довше трьох реплік, переходимо в дзвінок. Підсумок дзвінка пишемо в PR.</p>
-                <footer class="mt-auto flex flex-col gap-2 pt-4 @3xs:flex-row @3xs:items-center @3xs:justify-between">
-                  <ul role="list" class="flex flex-wrap gap-1.5 text-xs font-medium *:rounded-full *:bg-brand-50 *:px-2 *:py-0.5 *:text-brand-700 dark:*:bg-brand-950 dark:*:text-brand-200">
-                    <li>#process</li>
-                    <li>#team</li>
-                  </ul>
-                  <button type="button" class="min-h-11 cursor-pointer self-start rounded-md px-3 text-sm font-medium text-red-700 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 @3xs:self-auto dark:text-red-400 dark:hover:bg-red-950">Видалити<span class="sr-only"> нотатку «Як ми робимо code review»</span></button>
-                </footer>
-              </article>
-            </li>
-            <li>
-              <article aria-labelledby="note-2-title" class="group @container flex h-full flex-col rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md motion-reduce:transition-none dark:border-neutral-800 dark:bg-neutral-900">
-                <h3 id="note-2-title" class="text-base font-semibold">
-                  <a href="/notes/2" class="block truncate rounded-sm text-neutral-900 group-hover:text-brand-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:text-neutral-100 dark:group-hover:text-brand-300">Чекліст доступності для PR</a>
-                </h3>
-                <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Андрій · <time datetime="2026-11-03">3 листопада 2026</time></p>
-                <p class="mt-2 line-clamp-3 text-sm text-neutral-600 dark:text-neutral-300">Label у кожного поля, видимий фокус, контраст 4.5:1, перевірка лише клавіатурою, Lighthouse без провалів.</p>
-                <footer class="mt-auto flex flex-col gap-2 pt-4 @3xs:flex-row @3xs:items-center @3xs:justify-between">
-                  <ul role="list" class="flex flex-wrap gap-1.5 text-xs font-medium *:rounded-full *:bg-brand-50 *:px-2 *:py-0.5 *:text-brand-700 dark:*:bg-brand-950 dark:*:text-brand-200">
-                    <li>#a11y</li>
-                    <li>#process</li>
-                  </ul>
-                  <button type="button" class="min-h-11 cursor-pointer self-start rounded-md px-3 text-sm font-medium text-red-700 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 @3xs:self-auto dark:text-red-400 dark:hover:bg-red-950">Видалити<span class="sr-only"> нотатку «Чекліст доступності для PR»</span></button>
-                </footer>
-              </article>
-            </li>
-            <li>
-              <article aria-labelledby="note-3-title" class="group @container flex h-full flex-col rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md motion-reduce:transition-none dark:border-neutral-800 dark:bg-neutral-900">
-                <h3 id="note-3-title" class="text-base font-semibold">
-                  <a href="/notes/3" class="block truncate rounded-sm text-neutral-900 group-hover:text-brand-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:text-neutral-100 dark:group-hover:text-brand-300">Grid чи flex: шпаргалка</a>
-                </h3>
-                <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Марія · <time datetime="2026-10-30">30 жовтня 2026</time></p>
-                <p class="mt-2 line-clamp-3 text-sm text-neutral-600 dark:text-neutral-300">Flex — один напрямок: ряд кнопок, навбар, вирівнювання в картці. Grid — рядки і стовпці: сторінка, сітка карток, форма у дві колонки. Grid ззовні, flex усередині.</p>
-                <footer class="mt-auto flex flex-col gap-2 pt-4 @3xs:flex-row @3xs:items-center @3xs:justify-between">
-                  <ul role="list" class="flex flex-wrap gap-1.5 text-xs font-medium *:rounded-full *:bg-brand-50 *:px-2 *:py-0.5 *:text-brand-700 dark:*:bg-brand-950 dark:*:text-brand-200">
-                    <li>#css</li>
-                  </ul>
-                  <button type="button" class="min-h-11 cursor-pointer self-start rounded-md px-3 text-sm font-medium text-red-700 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 @3xs:self-auto dark:text-red-400 dark:hover:bg-red-950">Видалити<span class="sr-only"> нотатку «Grid чи flex: шпаргалка»</span></button>
-                </footer>
-              </article>
-            </li>
-          </ul>
+          <div role="search" class="mt-4">
+            <label for="search" class="text-sm font-medium">Пошук нотаток</label>
+            <input id="search" type="search" autocomplete="off" class="field-control" />
+          </div>
+          <p id="notes-alert" role="alert" class="mt-2 text-sm font-medium text-red-700 empty:hidden dark:text-red-400"></p>
+          <p id="notes-status" role="status" class="mt-2 text-sm text-neutral-600 dark:text-neutral-400"></p>
+          <ul id="notes-list" role="list" class="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3"></ul>
+
         </section>
 
         <section aria-labelledby="new-note-heading" class="mt-10 rounded-xl border border-neutral-200 bg-white p-4 sm:p-6 dark:border-neutral-800 dark:bg-neutral-900">
