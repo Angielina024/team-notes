@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Result } from './types';
+import { parseTagList } from './tags';
 
 const title = z.string().trim().min(1, 'Title is required').max(200, 'Title is too long');
 const body = z.string().max(10_000, 'Body is too long');
@@ -99,10 +100,7 @@ export const noteFormSchema = z.object({
   body: z.string().trim().max(10_000, 'Текст: до 10 000 символів'),
   tags: z
     .string()
-    .transform((text) => {
-      const tags = text.split(',').map((tag) => tag.trim().toLowerCase()).filter((tag) => tag.length > 0);
-      return [...new Set(tags)]; // без дублікатів
-    })
+    .transform(parseTagList)
     .pipe(z.array(z.string().max(30, 'Тег: до 30 символів')).max(10, 'Не більше 10 тегів')),
 });
 
