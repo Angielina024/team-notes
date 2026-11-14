@@ -4,7 +4,7 @@ import { noteFormSchema, toFieldErrors } from '$lib/notes/schema';
 import { requireUser } from '$lib/server/auth';
 import { createNote, deleteNote, getNote, listNotes } from '$lib/server/store';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 12;
 
 function parsePage(raw: string | null): number {
   const page = Number(raw ?? '1');
