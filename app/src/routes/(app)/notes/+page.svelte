@@ -24,6 +24,17 @@
   {#if data.tag}
   <p class="mb-4 text-sm">Фільтр: <strong>#{data.tag}</strong> · <a href="/notes" class="underline">скинути</a></p>
     {/if}
+
+    {#if data.tagCounts.length > 0}
+  <aside aria-labelledby="tags-heading" class="mb-6">
+    <h2 id="tags-heading" class="mb-2 text-sm font-medium">Теги</h2>
+    <ul class="flex flex-wrap gap-2 text-sm">
+      {#each data.tagCounts as { tag, count } (tag)}
+        <li><a href="?tag={encodeURIComponent(tag)}" class="underline">#{tag}</a> ({count})</li>
+      {/each}
+    </ul>
+  </aside>
+{/if}
   
   <section aria-labelledby="new-note" class="mb-8 {card}">
     <h2 id="new-note" class="mb-3 text-lg font-medium">Нова нотатка</h2>
