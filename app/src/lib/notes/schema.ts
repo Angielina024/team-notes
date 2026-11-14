@@ -1,11 +1,12 @@
 import { z } from 'zod';
 import type { Result } from './types';
 import { parseTagList } from './tags';
+import { BODY_MAX_LENGTH, MAX_TAGS_PER_NOTE, TAG_MAX_LENGTH, TITLE_MAX_LENGTH } from '../domain';
 
-const title = z.string().trim().min(1, 'Title is required').max(200, 'Title is too long');
-const body = z.string().max(10_000, 'Body is too long');
+const title = z.string().trim().min(1, 'Title is required').max(TITLE_MAX_LENGTH, 'Title is too long');
+const body = z.string().max(BODY_MAX_LENGTH, 'Body is too long');
 const status = z.enum(['draft', 'published', 'archived']);
-const tags = z.array(z.string().trim().toLowerCase().min(1).max(30)).max(10, 'At most 10 tags');
+const tags = z.array(z.string().trim().toLowerCase().min(1).max(TAG_MAX_LENGTH)).max(MAX_TAGS_PER_NOTE, `At most ${MAX_TAGS_PER_NOTE} tags`);
 
 export const NoteIdSchema = z.string().uuid();
 
@@ -96,12 +97,15 @@ export const LoginSchema = z.object({
 export type RegisterInput = z.infer<typeof RegisterSchema>;
 
 export const noteFormSchema = z.object({
-  title: z.string().trim().min(1, 'Вкажи заголовок').max(120, 'Заголовок: до 120 символів'),
-  body: z.string().trim().max(10_000, 'Текст: до 10 000 символів'),
+  title: z.string().trim().min(1, 'Вкажи заголовок').max(TITLE_MAX_LENGTH, `Заголовок: до ${TITLE_MAX_LENGTH} символів`),
+  body: z.string().trim().max(BODY_MAX_LENGTH, `Текст: до ${BODY_MAX_LENGTH} символів`),
   tags: z
     .string()
     .transform(parseTagList)
-    .pipe(z.array(z.string().max(30, 'Тег: до 30 символів')).max(10, 'Не більше 10 тегів')),
+    .pipe(
+      z.array(z.string().max(TAG_MAX_LENGTH, `Тег: до ${TAG_MAX_LENGTH} символів`))
+        .max(MAX_TAGS_PER_NOTE, `Не більше ${MAX_TAGS_PER_NOTE} тегів`)
+    ),
 });
 
 export type FieldErrors = Partial<Record<string, string>>;

@@ -1,5 +1,7 @@
 <script lang="ts">
     import type { PageProps } from './$types';
+
+    import { enhance } from '$app/forms';
   
     let { data }: PageProps = $props();
   
@@ -27,8 +29,17 @@
     {/if}
     <p class="whitespace-pre-line">{data.note.body}</p>
   
-    <form method="POST" action="/notes?/delete">
+    {#if data.editable}
+  <div class="flex gap-4">
+    {#if data.note.status !== 'archived'}
+      <form method="POST" action="?/archive" use:enhance>
+        <button class="text-sm underline hover:no-underline">Архівувати</button>
+      </form>
+    {/if}
+    <form method="POST" action="/notes?/delete" use:enhance>
       <input type="hidden" name="id" value={data.note.id} />
       <button class="text-sm text-red-700 hover:underline dark:text-red-300">Видалити нотатку</button>
     </form>
+  </div>
+{/if}
   </article>

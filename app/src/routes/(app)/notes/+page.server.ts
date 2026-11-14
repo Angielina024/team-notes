@@ -3,6 +3,7 @@ import type { Actions, PageServerLoad } from './$types';
 import { noteFormSchema, toFieldErrors } from '$lib/notes/schema';
 import { requireUser } from '$lib/server/auth';
 import { createNote, deleteNote, getNote, listNotes } from '$lib/server/store';
+import { canEdit, countTags } from '$lib/domain';
 
 
 const PAGE_SIZE = 12;
@@ -17,14 +18,17 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     const page = parsePage(url.searchParams.get('page'));
     const tag = url.searchParams.get('tag')?.trim().toLowerCase() || undefined;
     const { items, total } = listNotes({ authorId: user.id, tag, page, limit: PAGE_SIZE });
-  
+
+    const recent = listNotes({ authorId: user.id, page: 1, limit: 100 });
+
     return {
-      notes: items,
-      page,
-      tag: tag ?? null,
-      totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
-    };
+    notes: items,
+    page,
+    tag: tag ?? null,
+    totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+    tagCounts: countTags(recent.items),
   };
+};
 
 export const actions = {
     create: async ({ request, locals }) => {
@@ -49,7 +53,7 @@ export const actions = {
       const user = requireUser(locals);
       const id = String((await request.formData()).get('id') ?? '');
       const note = getNote(id);
-      if (!note || note.authorId !== user.id) error(404, 'Нотатку не знайдено');
+      if (!note || !canEdit(note, user)) error(404, 'Нотатку не знайдено');
   
       deleteNote(note.id);
       redirect(303, '/notes');
