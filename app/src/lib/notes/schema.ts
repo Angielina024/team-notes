@@ -93,3 +93,28 @@ export const LoginSchema = z.object({
 });
 
 export type RegisterInput = z.infer<typeof RegisterSchema>;
+
+export const noteFormSchema = z.object({
+  title: z.string().trim().min(1, 'Вкажи заголовок').max(120, 'Заголовок: до 120 символів'),
+  body: z.string().trim().max(10_000, 'Текст: до 10 000 символів'),
+  tags: z
+    .string()
+    .transform((text) => {
+      const tags = text.split(',').map((tag) => tag.trim().toLowerCase()).filter((tag) => tag.length > 0);
+      return [...new Set(tags)]; // без дублікатів
+    })
+    .pipe(z.array(z.string().max(30, 'Тег: до 30 символів')).max(10, 'Не більше 10 тегів')),
+});
+
+export type FieldErrors = Partial<Record<string, string>>;
+
+type Issue = { path: readonly PropertyKey[]; message: string };
+
+export function toFieldErrors(issues: readonly Issue[]): FieldErrors {
+  const errors: FieldErrors = {};
+  for (const issue of issues) {
+    const field = String(issue.path[0] ?? 'form');
+    errors[field] ??= issue.message;
+  }
+  return errors;
+}

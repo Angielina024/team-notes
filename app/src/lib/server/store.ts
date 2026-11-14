@@ -12,8 +12,9 @@ export interface Page<T> {
 
 const notes = new Map<string, Note>();
 
-export function listNotes({ tag, page, limit }: ListQuery): Page<Note> {
+export function listNotes({ authorId, tag, page, limit }: ListQuery & { authorId?: string }): Page<Note> {
   const matching = [...notes.values()]
+    .filter((note) => !authorId || note.authorId === authorId)
     .filter((note) => !tag || note.tags.includes(tag))
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   const start = (page - 1) * limit;
