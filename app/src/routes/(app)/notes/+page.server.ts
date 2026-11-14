@@ -4,7 +4,8 @@ import { noteFormSchema, toFieldErrors } from '$lib/notes/schema';
 import { requireUser } from '$lib/server/auth';
 import { createNote, deleteNote, getNote, listNotes } from '$lib/server/store';
 
-const PAGE_SIZE = 20;
+
+const PAGE_SIZE = 12;
 
 function parsePage(raw: string | null): number {
   const page = Number(raw ?? '1');
@@ -12,16 +13,18 @@ function parsePage(raw: string | null): number {
 }
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-  const user = requireUser(locals);
-  const page = parsePage(url.searchParams.get('page'));
-  const { items, total } = listNotes({ authorId: user.id, page, limit: PAGE_SIZE });
-
-  return {
-    notes: items,
-    page,
-    totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+    const user = requireUser(locals);
+    const page = parsePage(url.searchParams.get('page'));
+    const tag = url.searchParams.get('tag')?.trim().toLowerCase() || undefined;
+    const { items, total } = listNotes({ authorId: user.id, tag, page, limit: PAGE_SIZE });
+  
+    return {
+      notes: items,
+      page,
+      tag: tag ?? null,
+      totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+    };
   };
-};
 
 export const actions = {
     create: async ({ request, locals }) => {

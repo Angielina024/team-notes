@@ -7,6 +7,12 @@
       'rounded-md border border-neutral-300 bg-white px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900';
     const errorText = 'text-sm text-red-700 dark:text-red-300';
     const card = 'rounded-lg border border-neutral-200 p-4 dark:border-neutral-800';
+
+    function pageHref(page: number): string {
+    const params = new URLSearchParams({ page: String(page) });
+    if (data.tag) params.set('tag', data.tag);
+    return `?${params}`;
+    }
   </script>
   
   <svelte:head>
@@ -14,6 +20,10 @@
   </svelte:head>
   
   <h1 class="mb-6 text-2xl font-semibold">Мої нотатки</h1>
+
+  {#if data.tag}
+  <p class="mb-4 text-sm">Фільтр: <strong>#{data.tag}</strong> · <a href="/notes" class="underline">скинути</a></p>
+    {/if}
   
   <section aria-labelledby="new-note" class="mb-8 {card}">
     <h2 id="new-note" class="mb-3 text-lg font-medium">Нова нотатка</h2>
@@ -58,6 +68,15 @@
                 <a href="/notes/{note.id}" class="hover:underline">{note.title}</a>
               </h3>
               <p class="line-clamp-3 text-sm text-neutral-700 dark:text-neutral-300">{note.body}</p>
+              {#if note.tags.length > 0}
+                <ul class="mt-2 flex flex-wrap gap-2 text-sm" aria-label="Теги">
+                    {#each note.tags as tag}
+                    <li>
+                        <a href="?tag={encodeURIComponent(tag)}" class="rounded bg-neutral-100 px-2 py-0.5 hover:underline dark:bg-neutral-800">#{tag}</a>
+                    </li>
+                    {/each}
+                </ul>
+                {/if}
               <form method="POST" action="?/delete" class="mt-3">
                 <input type="hidden" name="id" value={note.id} />
                 <button class="text-sm text-red-700 hover:underline dark:text-red-300">
@@ -71,8 +90,8 @@
     {/if}
   
     <nav aria-label="Сторінки" class="mt-6 flex items-center gap-4 text-sm">
-      {#if data.page > 1}<a href="?page={data.page - 1}" rel="prev" class="underline">← Попередня</a>{/if}
+      {#if data.page > 1}<a href={pageHref(data.page - 1)} rel="prev" class="underline">← Попередня</a>{/if}
       <span>Сторінка {data.page} з {data.totalPages}</span>
-      {#if data.page < data.totalPages}<a href="?page={data.page + 1}" rel="next" class="underline">Наступна →</a>{/if}
+      {#if data.page < data.totalPages}<a href={pageHref(data.page + 1)} rel="next" class="underline">Наступна →</a>{/if}
     </nav>
   </section>
