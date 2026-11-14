@@ -73,3 +73,23 @@ export async function parseJsonBody<S extends z.ZodType>(
   }
   return { ok: true, value: result.data };
 }
+
+const BCRYPT_MAX_BYTES = 72;
+
+const password = z
+  .string()
+  .min(8, 'Password must have at least 8 characters')
+  .refine((value) => new TextEncoder().encode(value).length <= BCRYPT_MAX_BYTES, 'Password is too long');
+
+export const RegisterSchema = z.object({
+  email: z.string().trim().toLowerCase().email('Invalid email'),
+  name: z.string().trim().min(1, 'Name is required').max(100),
+  password
+});
+
+export const LoginSchema = z.object({
+  email: z.string().trim().toLowerCase().min(1).max(254),
+  password: z.string().min(1).max(200)
+});
+
+export type RegisterInput = z.infer<typeof RegisterSchema>;

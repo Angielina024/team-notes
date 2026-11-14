@@ -1,21 +1,30 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import type { Note } from '$lib/notes/types';
 import { NoteIdSchema, NotePatchSchema, parseJsonBody } from '$lib/notes/schema';
+import { requireUser } from '$lib/server/auth';
 import { deleteNote, getNote, updateNote } from '$lib/server/store';
 
 const invalidId = () => json({ message: 'Note id must be a UUID' }, { status: 400 });
 const notFound = () => json({ message: 'Note not found' }, { status: 404 });
 const isValidId = (id: string) => NoteIdSchema.safeParse(id).success;
 
-export const GET: RequestHandler = ({ params }) => {
+function findOwnNote(id: string, userId: string): Note | undefined {
+  const note = getNote(id);
+  return note?.authorId === userId ? note : undefined;
+}
+
+export const GET: RequestHandler = ({ params, locals }) => {
+  requireUser(locals);
   if (!isValidId(params.id)) return invalidId();
   const note = getNote(params.id);
   return note ? json(note) : notFound();
 };
 
-export const PATCH: RequestHandler = async ({ params, request }) => {
+export const PATCH: RequestHandler = async ({ params, request, locals }) => {
+  const user = requireUser(locals);
   if (!isValidId(params.id)) return invalidId();
-  if (!getNote(params.id)) return notFound();
+  if (!findOwnNote(params.id, user.id)) return notFound();
 
   const parsed = await parseJsonBody(request, NotePatchSchema);
   if (!parsed.ok) return json(parsed.error, { status: parsed.error.status });
@@ -24,7 +33,11 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
   return note ? json(note) : notFound();
 };
 
-export const DELETE: RequestHandler = ({ params }) => {
+export const DELETE: RequestHandler = ({ params, locals }) => {
+  const user = requireUser(locals);
   if (!isValidId(params.id)) return invalidId();
-  return deleteNote(params.id) ? new Response(null, { status: 204 }) : notFound();
+  if (!findOwnNote(params.id, user.id)) return notFound();
+
+  deleteNote(params.id);
+  return new Response(null, { status: 204 });
 };
