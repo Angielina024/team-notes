@@ -90,8 +90,8 @@
     {/if}
   
     <nav aria-label="Сторінки" class="mt-6 flex items-center gap-4 text-sm">
-      {#if data.page > 1}<a href={pageHref(data.page - 1)}" rel="prev" class="underline">← Попередня</a>{/if}
+      {#if data.page > 1}<a href={pageHref(data.page - 1)} rel="prev" class="underline">← Попередня</a>{/if}
       <span>Сторінка {data.page} з {data.totalPages}</span>
-      {#if data.page < data.totalPages}<a href={pageHref(data.page + 1)}" rel="next" class="underline">Наступна →</a>{/if}
+      {#if data.page < data.totalPages}<a href={pageHref(data.page + 1)} rel="next" class="underline">Наступна →</a>{/if}
     </nav>
   </section>
