@@ -10,6 +10,6 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
   const user = await registerUser(parsed.value);
   if (!user) return json({ message: 'Email is already registered' }, { status: 409 });
 
-  startSession(cookies, user.id);
+  await startSession(cookies, user.id);
   return json(user, { status: 201 });
 };

@@ -34,7 +34,7 @@ const cors: Handle = async ({ event, resolve }) => {
 
 const session: Handle = async ({ event, resolve }) => {
   const token = event.cookies.get(SESSION_COOKIE);
-  event.locals.user = token ? validateSessionToken(token) : null;
+  event.locals.user = token ? await validateSessionToken(token) : null;
   if (token && !event.locals.user) {
     event.cookies.delete(SESSION_COOKIE, { path: '/' });
   }
