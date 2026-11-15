@@ -22,12 +22,12 @@ export const actions = {
     if (!user) {
       return fail(400, { email, message: 'Невірний email або пароль' });
     }
-    startSession(cookies, user.id);
+    await startSession(cookies, user.id);
     redirect(303, '/notes');
   },
 
   logout: async ({ cookies }) => {
-    endSession(cookies);
+    await endSession(cookies);
     redirect(303, '/login');
   },
 } satisfies Actions;

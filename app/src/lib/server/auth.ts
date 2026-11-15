@@ -1,110 +1,65 @@
-import { createHash, randomBytes } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import { error, type Cookies } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import type { User } from '$lib/notes/types';
 import type { RegisterInput } from '$lib/notes/schema';
+import { sql, usersRepository } from './container';
+import { createSession, deleteAllSessions, deleteSession, findSessionUser } from './sessions';
 
 export const SESSION_COOKIE = 'session';
-const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const BCRYPT_COST = 12;
 const LOGIN_MAX_ATTEMPTS = 5;
 const LOGIN_WINDOW_MS = 60 * 1000;
+const UNIQUE_VIOLATION = '23505'; // код помилки PostgreSQL «порушено UNIQUE»
 
-interface UserRecord extends User {
-  passwordHash: string;
-}
-
-interface Session {
-  userId: string;
-  expiresAt: number;
-}
-
-const usersById = new Map<string, UserRecord>();
-const userIdByEmail = new Map<string, string>();
-const sessions = new Map<string, Session>(); // key: sha256(token)
 const loginAttempts = new Map<string, number[]>(); // key: IP
 
 const DUMMY_HASH = bcrypt.hashSync('dummy-password-for-timing', BCRYPT_COST);
-
-function toPublicUser({ id, email, name }: UserRecord): User {
-  return { id, email, name };
-}
-
-function hashToken(token: string): string {
-  return createHash('sha256').update(token).digest('hex');
-}
 
 // ---------- users and passwords ----------
 
 export async function registerUser(input: RegisterInput): Promise<User | null> {
   const passwordHash = await bcrypt.hash(input.password, BCRYPT_COST);
-  if (userIdByEmail.has(input.email)) return null;
-
-  const record: UserRecord = { id: crypto.randomUUID(), email: input.email, name: input.name, passwordHash };
-  usersById.set(record.id, record);
-  userIdByEmail.set(record.email, record.id);
-  return toPublicUser(record);
+  try {
+    return await usersRepository.create({ email: input.email, name: input.name, passwordHash });
+  } catch (cause) {
+    // email уже зайнятий: це перевіряє UNIQUE-індекс у базі
+    if ((cause as { code?: string }).code === UNIQUE_VIOLATION) return null;
+    throw cause;
+  }
 }
 
 export async function verifyCredentials(email: string, password: string): Promise<User | null> {
-  const userId = userIdByEmail.get(email);
-  const record = userId ? usersById.get(userId) : undefined;
+  const record = await usersRepository.findByEmailWithHash(email);
   const passwordMatches = await bcrypt.compare(password, record?.passwordHash ?? DUMMY_HASH);
-  return record && passwordMatches ? toPublicUser(record) : null;
-}
-
-export function findUserById(id: string): User | null {
-  const record = usersById.get(id);
-  return record ? toPublicUser(record) : null;
+  return record && passwordMatches ? { id: record.id, email: record.email, name: record.name } : null;
 }
 
 // ---------- sessions ----------
 
-function createSession(userId: string): { token: string; expiresAt: Date } {
-  const token = randomBytes(32).toString('base64url');
-  const expiresAt = Date.now() + SESSION_TTL_MS;
-  sessions.set(hashToken(token), { userId, expiresAt });
-  return { token, expiresAt: new Date(expiresAt) };
+export function validateSessionToken(token: string): Promise<User | null> {
+  return findSessionUser(sql, token);
 }
 
-export function validateSessionToken(token: string): User | null {
-  const key = hashToken(token);
-  const session = sessions.get(key);
-  if (!session) return null;
-  if (session.expiresAt <= Date.now()) {
-    sessions.delete(key);
-    return null;
-  }
-  return findUserById(session.userId);
-}
-
-export function startSession(cookies: Cookies, userId: string): void {
-  const { token, expiresAt } = createSession(userId);
+export async function startSession(cookies: Cookies, userId: string): Promise<void> {
+  const { token, expiresAt } = await createSession(sql, userId);
   cookies.set(SESSION_COOKIE, token, {
     path: '/',
     httpOnly: true,
     sameSite: 'lax',
     secure: !dev,
-    expires: expiresAt
+    expires: expiresAt,
   });
 }
 
-export function endSession(cookies: Cookies): void {
+export async function endSession(cookies: Cookies): Promise<void> {
   const token = cookies.get(SESSION_COOKIE);
-  if (token) sessions.delete(hashToken(token));
+  if (token) await deleteSession(sql, token);
   cookies.delete(SESSION_COOKIE, { path: '/' });
 }
 
-export function endAllSessions(userId: string): number {
-  let removed = 0;
-  for (const [key, session] of sessions) {
-    if (session.userId === userId) {
-      sessions.delete(key);
-      removed++;
-    }
-  }
-  return removed;
+export function endAllSessions(userId: string): Promise<number> {
+  return deleteAllSessions(sql, userId);
 }
 
 export function requireUser(locals: App.Locals): User {

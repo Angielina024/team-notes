@@ -18,6 +18,6 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
   const user = await verifyCredentials(parsed.value.email, parsed.value.password);
   if (!user) return json({ message: 'Invalid email or password' }, { status: 401 });
 
-  startSession(cookies, user.id);
+  await startSession(cookies, user.id);
   return json(user);
 };
