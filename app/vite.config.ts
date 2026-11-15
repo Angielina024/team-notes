@@ -2,6 +2,9 @@ import { defineConfig } from 'vitest/config';
 import tailwindcss from '@tailwindcss/vite';
 import adapter from '@sveltejs/adapter-auto';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { loadEnv } from 'vite';
+
+const testEnv = loadEnv('test', process.cwd(), '');
 
 export default defineConfig({
 	server: {
@@ -23,14 +26,20 @@ export default defineConfig({
 	],
 	test: {
 		projects: [
-			{
-				extends: './vite.config.ts',
-				test: {
-					name: 'unit',
-					environment: 'node',
-					include: ['tests/unit/**/*.test.ts']
-				}
-			}
-		]
-	}
+		  {
+			extends: './vite.config.ts',
+			test: { name: 'unit', environment: 'node', include: ['tests/unit/**/*.test.ts'] },
+		  },
+		  {
+			extends: './vite.config.ts',
+			test: {
+			  name: 'integration',
+			  environment: 'node',
+			  include: ['tests/integration/**/*.test.ts'],
+			  env: testEnv,
+			  hookTimeout: 30_000,
+			},
+		  },
+		],
+	  },
 	});
