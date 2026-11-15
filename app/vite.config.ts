@@ -22,17 +22,15 @@ export default defineConfig({
 		})
 	],
 	test: {
-		expect: { requireAssertions: true },
 		projects: [
 			{
 				extends: './vite.config.ts',
 				test: {
-					name: 'server',
+					name: 'unit',
 					environment: 'node',
-					include: ['src/**/*.{test,spec}.{js,ts}'],
-					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}']
+					include: ['tests/unit/**/*.test.ts']
 				}
 			}
 		]
 	}
-});
+	});

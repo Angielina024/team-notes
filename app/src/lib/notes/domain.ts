@@ -1,4 +1,4 @@
-import type { Note, User } from './notes/types';
+import type { Note, User } from './types';
 
 export const TITLE_MAX_LENGTH = 120;
 export const BODY_MAX_LENGTH = 10_000;

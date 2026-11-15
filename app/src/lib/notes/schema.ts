@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { Result } from './types';
 import { parseTagList } from './tags';
-import { BODY_MAX_LENGTH, MAX_TAGS_PER_NOTE, TAG_MAX_LENGTH, TITLE_MAX_LENGTH } from '../domain';
+import { BODY_MAX_LENGTH, MAX_TAGS_PER_NOTE, TAG_MAX_LENGTH, TITLE_MAX_LENGTH } from './domain';
 
 const title = z.string().trim().min(1, 'Title is required').max(TITLE_MAX_LENGTH, 'Title is too long');
 const body = z.string().max(BODY_MAX_LENGTH, 'Body is too long');
